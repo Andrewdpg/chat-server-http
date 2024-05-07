@@ -1,13 +1,15 @@
 package util;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UrlLink {
+
+    public static final String ABSOLUTE_PATH = new File("").getAbsolutePath().replace("\\", "/").concat("/src");
 
     View method;
     String pattern;
@@ -47,37 +49,20 @@ public class UrlLink {
         return path.contains(".");
     }
 
-    public static String readHtml(String path) {
-        try {
-
-            StringBuilder htmlContent = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new FileReader("templates/" + path + ".html"))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    htmlContent.append(line);
-                }
-            } catch (FileNotFoundException e) {
-                return "Not Found";
-            }
-            return htmlContent.toString();
-        } catch (Exception e) {
-            return "Not Found";
-        }
+    public static String readHtml(String filename) {
+        return readStatic("templates/" + filename + ".html");
     }
 
     public static String readStatic(String path) {
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(ABSOLUTE_PATH + "/static" + (path.startsWith("/") ? "" : "/") + path))) {
             StringBuilder content = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new FileReader("static" + (path.startsWith("/")?"":"/") + path))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    content.append(line);
-                }
-            } catch (FileNotFoundException e) {
-                return "Not Found";
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line);
             }
             return content.toString();
         } catch (Exception e) {
+            System.out.println("File not found: " + ABSOLUTE_PATH + "/templates/" + path + ".html");
             return "Not Found";
         }
     }
