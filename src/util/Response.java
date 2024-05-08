@@ -1,17 +1,22 @@
 package util;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Response {
     private String version;
     private int statusCode;
     private String statusText;
     private String body;
+    private Map<String, String> headers;
 
     public Response(String version, int statusCode, String statusText, String body) {
         this.version = version;
         this.statusCode = statusCode;
         this.statusText = statusText;
         this.body = body;
+        this.headers = new HashMap<>();
     }
 
     public String getVersion() {
@@ -30,13 +35,17 @@ public class Response {
         return body;
     }
 
-    public byte[] getBytes() throws IOException {
-        String response = version + " " + statusCode + " " + statusText + "\r\n\r\n" + body;
-        return response.getBytes("UTF-8");
+    public void addHeader(String key, String value) {
+        this.headers.put(key, value);
     }
 
-    public byte[] getBytes(String decode) throws IOException {
-        String response = version + " " + statusCode + " " + statusText + "\r\n\r\n" + body;
-        return response.getBytes(decode);
+    public byte[] getBytes() throws IOException {
+        StringBuilder response = new StringBuilder();
+        response.append(version).append(" ").append(statusCode).append(" ").append(statusText).append("\r\n");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            response.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
+        }
+        response.append("\r\n").append(body);
+        return response.toString().getBytes("UTF-8");
     }
 }

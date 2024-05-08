@@ -25,7 +25,7 @@ public class UrlLink {
     }
 
     public boolean match(Request request) {
-        Pattern pattern = Pattern.compile(this.pattern);
+        Pattern pattern = Pattern.compile(this.pattern+"\\??");
         matcher = pattern.matcher(request.getPath());
         if (matcher.matches()) {
             request.setParams(matcher);
@@ -65,5 +65,11 @@ public class UrlLink {
             System.out.println("File not found: " + ABSOLUTE_PATH + "/templates/" + path + ".html");
             return "Not Found";
         }
+    }
+
+    public static Response redirect(String path) {
+        Response response = new Response("HTTP/1.1", 303, "See Other", "");
+        response.addHeader("Location", path);
+        return response;
     }
 }
