@@ -12,6 +12,7 @@ public class Response {
     private Map<String, String> headers;
 
     public Response(String version, int statusCode, String statusText, String body) {
+        System.out.print(version + " " + statusCode + " " + statusText);
         this.version = version;
         this.statusCode = statusCode;
         this.statusText = statusText;

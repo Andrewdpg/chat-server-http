@@ -3,9 +3,12 @@ package util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import config.Urls;
 
 public class UrlLink {
 
@@ -18,6 +21,16 @@ public class UrlLink {
     public UrlLink(View method, String pattern) {
         this.method = method;
         this.pattern = pattern;
+    }
+
+    public static Response handle(Request request) throws IOException{
+        System.out.print("\nRequest: " + request.getPath()+ " - ");
+        if(UrlLink.isFile(request.getPath())){
+            return new Response("HTTP/1.1", 200, "OK", UrlLink.readStatic(request.getPath()));
+        }
+        UrlLink url = UrlLink.getUrl(request, Urls.urls);
+        if(url != null) return url.execute(request);
+        else return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
     }
 
     public Response execute(Request request) {

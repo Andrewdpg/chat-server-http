@@ -7,9 +7,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 
-import config.Urls;
 import util.Request;
 import util.Response;
+import util.UrlLink;
 
 public class SimpleHTTPServer {
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
@@ -30,7 +30,7 @@ public class SimpleHTTPServer {
                     request.setBody(readBlock(client));
                 }
     
-                Response response = Urls.handle(request);
+                Response response = UrlLink.handle(request);
     
                 out.write(response.getBytes());
                 out.close();
