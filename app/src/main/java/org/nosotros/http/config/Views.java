@@ -14,7 +14,11 @@ public class Views {
         return UrlLink.readHtml("index");
     }
 
-    public static Response nose(Request request){
-        return UrlLink.readHtml("hola");
+    public static Response chat(Request request){
+        if(request.isPost()){
+            return UrlLink.redirect("/chat");
+        }
+        
+        return UrlLink.readHtml("chat");
     }
 }
