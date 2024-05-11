@@ -5,6 +5,8 @@ package org.nosotros;
 import org.glassfish.tyrus.server.Server;
 
 public class App {
+
+    public static boolean debug = true;
     public static void main(String[] args) {
 
         HTTPServer httpServer = new HTTPServer();

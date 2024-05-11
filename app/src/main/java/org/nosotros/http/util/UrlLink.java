@@ -1,8 +1,9 @@
 package org.nosotros.http.util;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -66,8 +67,20 @@ public class UrlLink {
     }
 
     public static Response readStatic(String path) {
-        InputStream is = App.class.getResourceAsStream("/static" + (path.startsWith("/") ? "" : "/") + path);
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+        InputStreamReader is;
+        if (!App.debug) {
+            is = new InputStreamReader(App.class.getResourceAsStream("/static" + (path.startsWith("/") ? "" : "/") + path));
+        }else{
+            try {
+                String absolutePath = new File("").getAbsolutePath().replace("\\", "/").concat("/app/src/main/resources/static" + (path.startsWith("/") ? "" : "/") + path);
+                System.out.println("Absolute Path: " + absolutePath);
+                is = new FileReader(absolutePath);
+            } catch (IOException e) {
+                System.out.println(e);
+                return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
+            }
+        }
+        try (BufferedReader br = new BufferedReader(is)) {
             StringBuilder content = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
