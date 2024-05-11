@@ -1,9 +1,9 @@
-package config;
+package org.nosotros.http.config;
 
 
 import java.util.ArrayList;
 
-import util.UrlLink;
+import org.nosotros.http.util.UrlLink;
 
 public class Urls {
 

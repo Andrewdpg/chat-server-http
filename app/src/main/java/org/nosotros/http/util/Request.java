@@ -1,4 +1,4 @@
-package util;
+package org.nosotros.http.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

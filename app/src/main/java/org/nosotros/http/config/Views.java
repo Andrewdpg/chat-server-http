@@ -1,8 +1,8 @@
-package config;
+package org.nosotros.http.config;
 
-import util.Request;
-import util.Response;
-import util.UrlLink;
+import org.nosotros.http.util.Request;
+import org.nosotros.http.util.Response;
+import org.nosotros.http.util.UrlLink;
 
 public class Views {
     
@@ -11,10 +11,10 @@ public class Views {
             return UrlLink.redirect("/nose");
         }
         
-        return new Response("HTTP/1.1", 200, "OK", UrlLink.readHtml("index"));
+        return UrlLink.readHtml("index");
     }
 
     public static Response nose(Request request){
-        return new Response("HTTP/1.1", 200, "OK", UrlLink.readHtml("hola"));
+        return UrlLink.readHtml("hola");
     }
 }

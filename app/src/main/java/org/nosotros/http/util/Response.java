@@ -1,4 +1,4 @@
-package util;
+package org.nosotros.http.util;
 
 import java.io.IOException;
 import java.util.HashMap;
