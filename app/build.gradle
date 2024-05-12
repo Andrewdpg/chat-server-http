@@ -19,6 +19,7 @@ dependencies {
     implementation 'javax.websocket:javax.websocket-api:1.1'
     implementation 'org.glassfish.tyrus:tyrus-server:1.17'
     implementation 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.17'
+    implementation 'org.json:json:20240303'
 
     implementation libs.guava
 }
@@ -37,3 +38,4 @@ jar {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+

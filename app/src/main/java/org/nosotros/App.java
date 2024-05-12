@@ -3,17 +3,20 @@
  */
 package org.nosotros;
 import org.glassfish.tyrus.server.Server;
+import org.nosotros.chat.PeopleController;
 
 public class App {
 
     public static boolean debug = true;
+    public static PeopleController peopleController = new PeopleController();
+
     public static void main(String[] args) {
 
         HTTPServer httpServer = new HTTPServer();
         Thread httpThread = new Thread(httpServer);
         httpThread.start();
 
-        Server server = new Server("localhost", 8080, "/websockets", null, WebServer.class);
+        Server server = new Server("localhost", 8080, "/websockets", null, ChatSocket.class);
         try {
             server.start();
             System.out.println("Presiona cualquier tecla para detener el servidor..");

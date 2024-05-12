@@ -1,10 +1,12 @@
 package org.nosotros.http.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URLConnection;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,14 +25,16 @@ public class UrlLink {
         this.pattern = pattern;
     }
 
-    public static Response handle(Request request) throws IOException{
-        System.out.print("\nRequest: " + request.getPath()+ " - ");
-        if(UrlLink.isFile(request.getPath())){
+    public static Response handle(Request request) throws IOException {
+        System.out.print("\nRequest: " + request.getPath() + " - ");
+        if (UrlLink.isFile(request.getPath())) {
             return readStatic(request.getPath());
         }
         UrlLink url = UrlLink.getUrl(request, Urls.urls);
-        if(url != null) return url.execute(request);
-        else return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
+        if (url != null)
+            return url.execute(request);
+        else
+            return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
     }
 
     public Response execute(Request request) {
@@ -38,7 +42,7 @@ public class UrlLink {
     }
 
     public boolean match(Request request) {
-        Pattern pattern = Pattern.compile(this.pattern+"\\??");
+        Pattern pattern = Pattern.compile(this.pattern + "\\??");
         matcher = pattern.matcher(request.getPath());
         if (matcher.matches()) {
             request.setParams(matcher);
@@ -67,26 +71,24 @@ public class UrlLink {
     }
 
     public static Response readStatic(String path) {
-        InputStreamReader is;
+        String fileName;
         if (!App.debug) {
-            is = new InputStreamReader(App.class.getResourceAsStream("/static" + (path.startsWith("/") ? "" : "/") + path));
-        }else{
             try {
-                String absolutePath = new File("").getAbsolutePath().replace("\\", "/").concat("/app/src/main/resources/static" + (path.startsWith("/") ? "" : "/") + path);
-                System.out.println("Absolute Path: " + absolutePath);
-                is = new FileReader(absolutePath);
-            } catch (IOException e) {
-                System.out.println(e);
+                fileName = App.class.getResource("/static" + (path.startsWith("/") ? "" : "/") + path).toURI().toString();
+            } catch (URISyntaxException e) {
                 return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
             }
+        } else {
+            fileName = new File("").getAbsolutePath().replace("\\", "/")
+                    .concat("/app/src/main/resources/static" + (path.startsWith("/") ? "" : "/") + path);
         }
-        try (BufferedReader br = new BufferedReader(is)) {
-            StringBuilder content = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                content.append(line);
-            }
-            return new Response("HTTP/1.1", 200, "OK", content.toString());
+        try {
+            InputStream is = new FileInputStream(Paths.get(fileName).toFile());
+            String mimeType = URLConnection.guessContentTypeFromName(fileName);
+            boolean isBinary = !(mimeType != null && mimeType.startsWith("text/"));
+            byte[] content = is.readAllBytes();
+            is.close();
+            return new Response("HTTP/1.1", 200, "OK", content, isBinary);
         } catch (Exception e) {
             return new Response("HTTP/1.1", 404, "Not Found", "Not Found");
         }

@@ -1,5 +1,10 @@
 package org.nosotros.http.util;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -7,23 +12,71 @@ public class Request {
 
     private String method;
     private String path;
-    private String version;
-    private String body;
     private Map<String, String> headers = new HashMap<>();
     private String[] params;
+    private String body;
 
-    public Request(String rawRequest) {
-        String[] lines = rawRequest.split("\r\n");
-        String[] requestLine = lines[0].split(" ");
 
-        this.method = requestLine[0];
-        this.path = requestLine[1];
-        this.version = requestLine[2];
+    public Request(InputStream inputStream) throws IOException {
+        final List<String> metadataLines = new ArrayList<>();
 
-        for (int i = 1; i < lines.length; i++) {
-            String[] header = lines[i].split(": ");
-            headers.put(header[0], header[1]);
+        final StringBuilder lineBuilder = new StringBuilder();
+        int b;
+        boolean wasNewLine = false;
+
+        while ((b = inputStream.read()) >= 0) {
+            if (b == '\r') {
+                int next = inputStream.read();
+                if (next == '\n') {
+                    if (wasNewLine) {
+                        break;
+                    }
+                    wasNewLine = true;
+                    metadataLines.add(lineBuilder.toString());
+                    lineBuilder.setLength(0);
+                }
+            } else {
+                lineBuilder.append((char) b);
+                wasNewLine = false;
+            }
         }
+
+        final String firstLine = metadataLines.get(0);
+        this.method = firstLine.split("\\s+")[0];
+        this.path = firstLine.split("\\s+")[1];
+
+        this.headers = new HashMap<>();
+
+        for (int i = 1; i < metadataLines.size(); i++) {
+            String headerLine = metadataLines.get(i);
+            if (headerLine.trim().isEmpty()) {
+                break;
+            }
+
+            String key = headerLine.split(":\\s")[0];
+            String value = headerLine.split(":\\s")[1];
+
+            headers.put(key, value);
+        }
+
+        if (headers.containsKey("Content-Length")) {
+            readBody(inputStream);
+        }
+    }
+
+    public void readBody(InputStream inputStream) throws IOException {
+        int remaining = Integer.parseInt(headers.get("Content-Length"));
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        final byte[] buff = new byte[2048];
+
+        while (remaining > 0) {
+            int read = inputStream.read(buff, 0, Math.min(remaining, buff.length));
+            os.write(buff, 0, read);
+            remaining -= read;
+            System.out.println(remaining);
+        }
+
+        this.body = os.toString();
     }
 
     public void setParams(Matcher matcher){
@@ -53,9 +106,6 @@ public class Request {
         return path;
     }
 
-    public String getVersion() {
-        return version;
-    }
 
     public Map<String, String> getHeaders() {
         return headers;
@@ -102,7 +152,6 @@ public class Request {
         return "Request{" +
                 "method='" + method + '\'' +
                 ", path='" + path + '\'' +
-                ", version='" + version + '\'' +
                 ", headers=" + headers +
                 '}';
     }
