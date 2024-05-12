@@ -15,6 +15,8 @@ public class Request {
     private Map<String, String> headers = new HashMap<>();
     private String[] params;
     private String body;
+    private Map<String, String> form = new HashMap<>();
+    private Map<String, String> cookies = new HashMap<>();
 
 
     public Request(InputStream inputStream) throws IOException {
@@ -45,8 +47,6 @@ public class Request {
         this.method = firstLine.split("\\s+")[0];
         this.path = firstLine.split("\\s+")[1];
 
-        this.headers = new HashMap<>();
-
         for (int i = 1; i < metadataLines.size(); i++) {
             String headerLine = metadataLines.get(i);
             if (headerLine.trim().isEmpty()) {
@@ -55,6 +55,11 @@ public class Request {
 
             String key = headerLine.split(":\\s")[0];
             String value = headerLine.split(":\\s")[1];
+
+            if (key.equals("Cookie")) {
+                setCooKies(value);
+                continue;
+            }
 
             headers.put(key, value);
         }
@@ -73,10 +78,28 @@ public class Request {
             int read = inputStream.read(buff, 0, Math.min(remaining, buff.length));
             os.write(buff, 0, read);
             remaining -= read;
-            System.out.println(remaining);
         }
 
         this.body = os.toString();
+        if(this.body.contains("&")){
+            String[] pairs = this.body.split("&");
+            for(String pair : pairs){
+                String[] keyValue = pair.split("=");
+                form.put(keyValue[0], keyValue[1]);
+            }
+        }
+    }
+
+    private void setCooKies(String cookie) {
+        String[] cookies = cookie.split(";");
+        for (String c : cookies) {
+            String[] keyValue = c.split("=");
+            this.cookies.put(keyValue[0].trim(), keyValue[1].trim());
+        }
+    }
+
+    public String getFormValue(String key){
+        return form.get(key);
     }
 
     public void setParams(Matcher matcher){
@@ -106,9 +129,16 @@ public class Request {
         return path;
     }
 
-
     public Map<String, String> getHeaders() {
         return headers;
+    }
+
+    public Map<String, String> getCookies() {
+        return cookies;
+    }
+
+    public String getCookie(String key) {
+        return cookies.get(key);
     }
 
     public boolean isGet() {
@@ -145,6 +175,10 @@ public class Request {
 
     public boolean isPatch() {
         return method.equals("PATCH");
+    }
+
+    public boolean isAuthenticated(){
+        return cookies.containsKey("cSessionId") && cookies.containsKey("cUsername");
     }
 
     @Override

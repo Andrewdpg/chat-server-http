@@ -49,10 +49,6 @@ public class Person {
         return sessions.get(sessionId);
     }
 
-    public String getSessionId() {
-        return sessions.keySet().iterator().next();
-    }
-
     public boolean hasSession(String sessionId) {
         return sessions.containsKey(sessionId);
     }

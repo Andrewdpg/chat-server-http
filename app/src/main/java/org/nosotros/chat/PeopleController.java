@@ -6,45 +6,47 @@ import org.nosotros.chat.model.Person;
 
 public class PeopleController {
 
-    // people mapped as name : person object
-    HashMap<String, Person> people = new HashMap<>();
+    // people mapped as username : person object
+    private static HashMap<String, Person> people = new HashMap<>();
 
-    public Person getPersonNamed(String name) {
-        return people.get(name);
+    public static Person getPersonNamed(String username) {
+        return people.get(username);
     }
 
-    public Person getPerson(String sessionId) {
+    public static Person getBySessionId(String sessionId) {
         for (Person person : people.values()) {
-            if (person.getSessionId().equals(sessionId)) {
+            if (person.hasSession(sessionId)) {
                 return person;
             }
         }
         return null;
     }
 
-    public boolean personExists(String name) {
-        return people.containsKey(name);
+    public static boolean personExists(String username) {
+        return people.containsKey(username);
     }
 
-    public void addPerson(Person person) {
+    public static void addPerson(Person person) {
         people.put(person.getUsername(), person);
     }
 
-    public void removePerson(Person person) {
+    public static void removePerson(Person person) {
         people.remove(person.getUsername());
     }
 
-    public void removePerson(String name) {
-        people.remove(name);
+    public static void removePerson(String username) {
+        people.remove(username);
     }
 
-    public void removePersonBySessionId(String sessionId) {
+    public static void removePersonBySessionId(String sessionId) {
         for (Person person : people.values()) {
-            if (person.getSessionId().equals(sessionId)) {
+            if (person.hasSession(sessionId)) {
                 people.remove(person.getUsername());
                 return;
             }
         }
     }
+
+    
 
 }
