@@ -5,7 +5,7 @@ import org.nosotros.http.util.Response;
 import org.nosotros.http.util.UrlLink;
 
 public class Views {
-    
+
     public static Response inicio(Request request){
         if(request.isPost()){
             return UrlLink.redirect("/nose");
@@ -20,5 +20,13 @@ public class Views {
         }
         
         return UrlLink.readHtml("chat");
+    }
+
+    public static Response login(Request request){
+        if(request.isPost()){
+            return UrlLink.redirect("/login");
+        }
+        
+        return UrlLink.readHtml("login");
     }
 }
