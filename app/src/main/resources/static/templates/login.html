@@ -9,15 +9,15 @@
 </head>
 <body>
     <div class="login-container">
-        <form class="login-form">
+        <form class="login-form" method="post">
             <h2>Datos de inicio</h2>
             <div class="input-group">
                 <i class="fas fa-user"></i>
-                <input type="text" placeholder="Nombre de usuario" required>
+                <input name="username" type="text" placeholder="Nombre de usuario" required>
             </div>
             <div class="input-group">
                 <i class="fas fa-lock"></i>
-                <input type="password" placeholder="Contraseña" required>
+                <input name="password" type="password" placeholder="Contraseña" required>
             </div>
             <button type="submit">Iniciar sesión</button>
         </form>

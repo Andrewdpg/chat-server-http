@@ -2,6 +2,7 @@ package org.nosotros.http.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ public class Response {
     private String statusText;
     private byte[] data;
     private boolean isBinary;
+    private ArrayList<String> setCookies;
 
     private Map<String, String> headers;
 
@@ -21,6 +23,7 @@ public class Response {
         this.statusText = statusText;
         this.data = data;
         this.headers = new HashMap<>();
+        this.setCookies = new ArrayList<>();
         this.isBinary = true;
     }
 
@@ -54,11 +57,18 @@ public class Response {
         this.headers.put(key, value);
     }
 
+    public void addSetCookie(String cookie) {
+        this.setCookies.add(cookie);
+    }
+
     public byte[] getBytes() throws IOException {
         StringBuilder response = new StringBuilder();
         response.append(version).append(" ").append(statusCode).append(" ").append(statusText).append("\r\n");
         for (Map.Entry<String, String> header : headers.entrySet()) {
             response.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
+        }
+        for (String cookie : setCookies) {
+            response.append("Set-Cookie: ").append(cookie).append("\r\n");
         }
         response.append("\r\n");
         if (isBinary) {

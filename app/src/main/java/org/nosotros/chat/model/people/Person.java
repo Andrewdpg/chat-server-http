@@ -50,6 +50,15 @@ public class Person extends Entity {
     }
 
     public void removeSession(Session session) {
+        if (session == null) {
+            for (String key : sessions.keySet()) {
+                if (sessions.get(key) == null) {
+                    sessions.remove(key);
+                }
+            }
+            return;
+        }
+
         sessions.values().remove(session);
     }
 
@@ -68,9 +77,15 @@ public class Person extends Entity {
     public void sendMessage(Message message) {
         for (Session session : sessions.values()) {
             try {
+                if (session == null || !session.isOpen()) {
+                    continue;
+                }
+                System.out.println("Sending message to " + getUsername() + " : " + message.toString());
                 session.getBasicRemote().sendText(message.toString());
+                System.out.println("Message sent to " + getUsername() + " : " + message.toString());
             } catch (Exception e) {
                 e.printStackTrace();
+
             }
         }
     }

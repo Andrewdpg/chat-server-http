@@ -63,6 +63,7 @@ public class Message {
 
     public String toString() {
         JSONObject json = new JSONObject();
+        json.put("type", "message");
         json.put("message", this.message);
         json.put("sender", this.sender);
         json.put("receiver", this.receiver.getId());

@@ -60,7 +60,6 @@ public class PeopleController {
     public static void updateSessionId(String username, String sessionId, Session session){
         Person person = people.get(username);
         person.addSession(sessionId, session);
-        System.out.println(people.get(username).getSessions().get(sessionId));
     }
 
     public static Entity getEntity(String id, ChatType type){

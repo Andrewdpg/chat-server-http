@@ -25,7 +25,6 @@ public class ChatSocket {
                 String username = json.getString("cUsername");
                 String sessionId = json.getString("cSessionId");
 
-                System.out.println("Username: " + username);
                 PeopleController.updateSessionId(username, sessionId, session);
                 person = PeopleController.getPersonNamed(username);
                 break;

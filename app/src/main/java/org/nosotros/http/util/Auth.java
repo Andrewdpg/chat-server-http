@@ -69,7 +69,8 @@ public class Auth {
             String sessionId = generateSessionId();
             person.addSession(sessionId, null);
             Response response = UrlLink.redirect(next);
-            response.addHeader("Set-Cookie", "cSessionId=" + sessionId + ";" + "cUsername=" + username + ";");
+            response.addHeader("Set-Cookie", "cSessionId=" + sessionId + "; Path=/");
+            response.addHeader("Set-Cookie", "cUsername=" + username + "; Path=/");
             return response;
         }
         return UrlLink.redirect("/login");

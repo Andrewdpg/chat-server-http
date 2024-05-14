@@ -21,6 +21,7 @@ public class Views {
         }
 
         if (request.isPost()) {
+            System.out.println(request.getCookies());
             return Auth.authenticate(request,"/chat");
         }
 
