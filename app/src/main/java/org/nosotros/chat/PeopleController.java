@@ -2,12 +2,18 @@ package org.nosotros.chat;
 
 import java.util.HashMap;
 
-import org.nosotros.chat.model.Person;
+import javax.websocket.Session;
+
+import org.nosotros.chat.model.message.ChatType;
+import org.nosotros.chat.model.people.Entity;
+import org.nosotros.chat.model.people.Group;
+import org.nosotros.chat.model.people.Person;
 
 public class PeopleController {
 
     // people mapped as username : person object
     private static HashMap<String, Person> people = new HashMap<>();
+    private static HashMap<String, Group> Groups = new HashMap<>();
 
     public static Person getPersonNamed(String username) {
         return people.get(username);
@@ -47,6 +53,25 @@ public class PeopleController {
         }
     }
 
-    
+    public static void removeSession(Person person, Session session){
+        person.removeSession(session);
+    }
+
+    public static void updateSessionId(String username, String sessionId, Session session){
+        Person person = people.get(username);
+        person.addSession(sessionId, session);
+        System.out.println(people.get(username).getSessions().get(sessionId));
+    }
+
+    public static Entity getEntity(String id, ChatType type){
+        switch (type){
+            case PRIVATE:
+                return people.get(id);
+            case GROUP:
+                return Groups.get(id);
+            default:
+                return null;
+        }
+    }
 
 }

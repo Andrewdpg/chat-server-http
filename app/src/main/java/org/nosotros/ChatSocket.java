@@ -1,11 +1,14 @@
 package org.nosotros;
 
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.json.JSONObject;
-import org.nosotros.chat.model.Person;
+import org.nosotros.chat.PeopleController;
+import org.nosotros.chat.model.message.Message;
+import org.nosotros.chat.model.people.Person;
 
 @ServerEndpoint("/chat")
 public class ChatSocket {
@@ -17,75 +20,84 @@ public class ChatSocket {
         JSONObject json = new JSONObject(message);
 
         // Si el mensaje es una actualización de sesión
-        if (json.getString("type").equals("sessionUpdate")) {
-            
-            String username = json.getString("username");
+        switch (json.getString("type")) {
+            case "sessionUpdate":
+                String username = json.getString("cUsername");
+                String sessionId = json.getString("cSessionId");
 
-            
-            System.out.println("Username: " + username);
-            // Actualiza la sesión del usuario
-            // Aquí debes implementar la lógica para actualizar la sesión del usuario en tu
-            // lista de objetos Persona
+                System.out.println("Username: " + username);
+                PeopleController.updateSessionId(username, sessionId, session);
+                person = PeopleController.getPersonNamed(username);
+                break;
+
+            case "message":
+                Message messageObj = Message.fromJson(json);
+                messageObj.getReceiver().sendMessage(messageObj);
+                break;
+            default:
+                break;
         }
+    }
+
+    @OnClose
+    public void terminarConexion(Session session) {
+        PeopleController.removeSession(person, session);
     }
 }
 
 /*
  * 
  * 
-    private static final String PREFIJO_PARTICIPANTE = "Invitado # ";
-    
-    private static final AtomicInteger idConexionI = new AtomicInteger(0);
-    
-    private static final Set<ConexionClienteChat> conexiones = new CopyOnWriteArraySet<>();
-    
-    private final String nickname;
-    private Session sessionWebsocket;
-    
-    public ConexionClienteChat(){
-        nickname = PREFIJO_PARTICIPANTE + idConexionI.getAndIncrement();
-    }
-    
-    @OnOpen
-    public void iniciarConexion(Session session){
-        this.sessionWebsocket = session;
-        conexiones.add(this);
-        String message = String.format("* El %s %s", nickname , "se ha unido al chat");
-        publicarGlobalmente(message);
-    }
-    
-    @OnClose
-    public void terminarConexion(){
-        conexiones.remove(this);
-        String message = String.format("* %s %s", nickname, "se ha desconectado");
-        publicarGlobalmente(message);
-    }
-    
-    
-    @OnMessage
-    public void atenderMensaje(String message){
-        String mensajeConId = String.format("* %s: %s", nickname, message);
-        publicarGlobalmente(mensajeConId);
-    }
-    
-    
-    @OnError
-    public void onError(Throwable t) throws Throwable{
-        System.out.println("Chat Error : " + t.toString());
-    }
-    
-    public static void publicarGlobalmente(String msg) {
-        for (ConexionClienteChat conexionI : conexiones) {
-            try {
-                synchronized (conexionI) {
-                    if (conexionI.sessionWebsocket.isOpen()) {
-                        conexionI.sessionWebsocket.getBasicRemote().sendText(msg);
-                    }
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-    
+ * private static final String PREFIJO_PARTICIPANTE = "Invitado # ";
+ * 
+ * private static final AtomicInteger idConexionI = new AtomicInteger(0);
+ * 
+ * private static final Set<ConexionClienteChat> conexiones = new
+ * CopyOnWriteArraySet<>();
+ * 
+ * private final String nickname;
+ * private Session sessionWebsocket;
+ * 
+ * public ConexionClienteChat(){
+ * nickname = PREFIJO_PARTICIPANTE + idConexionI.getAndIncrement();
+ * }
+ * 
+ * @OnOpen
+ * public void iniciarConexion(Session session){
+ * this.sessionWebsocket = session;
+ * conexiones.add(this);
+ * String message = String.format("* El %s %s", nickname ,
+ * "se ha unido al chat");
+ * publicarGlobalmente(message);
+ * }
+ * 
+ * 
+ * 
+ * 
+ * @OnMessage
+ * public void atenderMensaje(String message){
+ * String mensajeConId = String.format("* %s: %s", nickname, message);
+ * publicarGlobalmente(mensajeConId);
+ * }
+ * 
+ * 
+ * @OnError
+ * public void onError(Throwable t) throws Throwable{
+ * System.out.println("Chat Error : " + t.toString());
+ * }
+ * 
+ * public static void publicarGlobalmente(String msg) {
+ * for (ConexionClienteChat conexionI : conexiones) {
+ * try {
+ * synchronized (conexionI) {
+ * if (conexionI.sessionWebsocket.isOpen()) {
+ * conexionI.sessionWebsocket.getBasicRemote().sendText(msg);
+ * }
+ * }
+ * } catch (IOException e) {
+ * }
+ * }
+ * }
+ * 
  * 
  */

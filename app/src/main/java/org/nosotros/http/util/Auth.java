@@ -3,7 +3,7 @@ package org.nosotros.http.util;
 import java.util.UUID;
 
 import org.nosotros.chat.PeopleController;
-import org.nosotros.chat.model.Person;
+import org.nosotros.chat.model.people.Person;
 
 public class Auth {
 
@@ -69,8 +69,7 @@ public class Auth {
             String sessionId = generateSessionId();
             person.addSession(sessionId, null);
             Response response = UrlLink.redirect(next);
-            response.addHeader("Set-Cookie", "cSessionId=" + sessionId + "; Path=/; HttpOnly");
-            response.addHeader("Set-Cookie", "cUsername=" + username + "; Path=/; HttpOnly");
+            response.addHeader("Set-Cookie", "cSessionId=" + sessionId + ";" + "cUsername=" + username + ";");
             return response;
         }
         return UrlLink.redirect("/login");

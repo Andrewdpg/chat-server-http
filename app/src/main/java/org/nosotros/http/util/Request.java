@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.nosotros.chat.PeopleController;
+
 public class Request {
 
     private String method;
@@ -178,7 +180,7 @@ public class Request {
     }
 
     public boolean isAuthenticated(){
-        return cookies.containsKey("cSessionId") && cookies.containsKey("cUsername");
+        return cookies.containsKey("cSessionId") && cookies.containsKey("cUsername") && PeopleController.personExists(cookies.get("cUsername"));
     }
 
     @Override

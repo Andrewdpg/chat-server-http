@@ -1,34 +1,38 @@
-package org.nosotros.chat.model;
+package org.nosotros.chat.model.people;
 
 import java.util.HashMap;
 
-import org.glassfish.grizzly.http.server.Session;
+import javax.websocket.Session;
 
+import org.nosotros.chat.model.message.Message;
 
-public class Person {
+public class Person extends Entity {
 
-    private String username;
     private String password;
     private HashMap<String, Session> sessions;
-    
+
     public Person(String username, String password) {
-        this.username = username;
+        super(username);
         this.password = password;
         sessions = new HashMap<>();
     }
 
     public String getUsername() {
-        return username;
+        return getId();
     }
+
     public void setUsername(String username) {
-        this.username = username;
+        setId(username);
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
+
     public HashMap<String, Session> getSessions() {
         return sessions;
     }
@@ -45,6 +49,10 @@ public class Person {
         sessions.remove(sessionId);
     }
 
+    public void removeSession(Session session) {
+        sessions.values().remove(session);
+    }
+
     public Session getSession(String sessionId) {
         return sessions.get(sessionId);
     }
@@ -55,5 +63,15 @@ public class Person {
 
     public boolean hasSession() {
         return !sessions.isEmpty();
+    }
+
+    public void sendMessage(Message message) {
+        for (Session session : sessions.values()) {
+            try {
+                session.getBasicRemote().sendText(message.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
